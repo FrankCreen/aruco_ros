@@ -142,12 +142,6 @@ namespace aruco {
     position[0] = Tvec.ptr<float>(0)[0];
     position[1] = Tvec.ptr<float>(0)[1];
     position[2] = +Tvec.ptr<float>(0)[2];
-
-    // //设置坐标信息
-    
-    // Marker::setPosX(position[0]);
-    // Marker::setPosY(position[1]);
-    // Marker::setPosZ(position[2]);
     
     // now calculare orientation quaternion
     cv::Mat Rot(3,3,CV_32FC1);
@@ -349,35 +343,6 @@ namespace aruco {
     ssize=markerSizeMeters;
   }
 
-/*
-
-  //设置位置信息
-    void setPosX(double a){
-        posX = a;
-    }
-
-    void setPosY(double b){
-        posY = b;
-    }
-
-    void setPosZ(double c){
-        posZ = c;
-    }
-
-
-  //返回位置信息
-  double getPosX(){
-    return posX;
-  }
-
-  double getPosY(){
-    return posY;
-  }
-
-  double getPosZ(){
-    return posZ;
-  }
-  */
 
   void Marker::rotateXAxis(Mat &rotation)
   {

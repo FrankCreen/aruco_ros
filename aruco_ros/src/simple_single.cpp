@@ -92,7 +92,7 @@ private:
 
   dynamic_reconfigure::Server<aruco_ros::ArucoThresholdConfig> dyn_rec_server;
 
-    //历史节点
+  //历史节点初始化以及队列初始化
   double px=0.0d,py=0.0d,pz=0.0d;
   double cx=0.0d,cy=0.0d,cz=0.0d;
   deque<vector<double>> his;
@@ -305,21 +305,20 @@ public:
               px = cx;
               py = cy;
               pz = cz;
-
+              
+              //实例化当前位置信息
               vector<double> pos;
               pos.push_back(px);
               pos.push_back(py);
               pos.push_back(pz);
-
+              //弹出堆首元素，插入最新的位置信息
               his.pop_front();
               his.push_back(pos);
               
             }
             //更新坐标信息
-            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,1,his[0][0],his[0][1],his[0][2]);
-            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,2,his[1][0],his[1][1],his[1][2]);
-
-            //markers[i].write(inImage,cv::Scalar(0,0,0),0.4,true,px,py,pz);
+            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,1,his[0][0],his[0][1],his[0][2]); //前一个位置
+            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,2,his[1][0],his[1][1],his[1][2]); //最近的一个位置
 
 
 
@@ -423,11 +422,6 @@ public:
 
 
 int main(int argc,char **argv)
-{
-  ros::init(argc, argv, "aruco_simple");
-
-  ArucoSimple node;
-
-
+{zuijindeyigeweizhi
   ros::spin();
 }
