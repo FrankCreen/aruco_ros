@@ -15,10 +15,8 @@
 #include <dynamic_reconfigure/server.h>
 #include <aruco_ros/ArucoThresholdConfig.h>
 
-
 using namespace aruco;
 
-using namespace message_filters;
 
 bool useRectifiedImages;
 cv::Mat inImage;

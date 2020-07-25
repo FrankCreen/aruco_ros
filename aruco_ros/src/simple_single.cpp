@@ -311,7 +311,7 @@ public:
               pos.push_back(px);
               pos.push_back(py);
               pos.push_back(pz);
-              //弹出堆首元素，插入最新的位置信息
+              //弹出堆首元素，插入最新
               his.pop_front();
               his.push_back(pos);
               
@@ -422,6 +422,9 @@ public:
 
 
 int main(int argc,char **argv)
-{zuijindeyigeweizhi
+{
+  ros::init(argc, argv, "aruco_simple");	
+
+  ArucoSimple node;
   ros::spin();
 }
