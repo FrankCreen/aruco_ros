@@ -33,6 +33,7 @@ namespace aruco {
  *
  *
  ****/
+    //负责在marker上画出三个坐标轴
     void CvDrawingUtils::draw3dAxis(cv::Mat &Image,Marker &m,const CameraParameters &CP)
     {
 
@@ -53,13 +54,15 @@ namespace aruco {
 
         vector<Point2f> imagePoints;
         cv::projectPoints( objectPoints, m.Rvec,m.Tvec, CP.CameraMatrix,CP.Distorsion,   imagePoints);
+        
+        
         //draw lines of different colours
         cv::line(Image,imagePoints[0],imagePoints[1],Scalar(255,0,0,255),1,CV_AA);
         cv::line(Image,imagePoints[0],imagePoints[2],Scalar(0,255,0,255),1,CV_AA);
         cv::line(Image,imagePoints[0],imagePoints[3],Scalar(0,0,255,255),1,CV_AA);
         putText(Image,"x", imagePoints[1],FONT_HERSHEY_SIMPLEX, 0.6, Scalar(255,0,0,255),2);
         putText(Image,"y", imagePoints[2],FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0,255,0,255),2);
-        putText(Image,"z", imagePoints[3],FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0,0,255,255),2);
+        putText(Image,"z", imagePoints[3],FONT_HERSHEY_SIMPLEX, 0.6, Scalar(0,0,255,255),2);       
     }
 
     /****
@@ -99,6 +102,7 @@ namespace aruco {
 
         vector<Point2f> imagePoints;
         projectPoints( objectPoints, m.Rvec,m.Tvec,  CP.CameraMatrix,CP.Distorsion,   imagePoints);
+        
         //draw lines of different colours
         for (int i=0;i<4;i++)
             cv::line(Image,imagePoints[i],imagePoints[(i+1)%4],Scalar(0,0,255,255),1,CV_AA);
@@ -108,7 +112,7 @@ namespace aruco {
 
         for (int i=0;i<4;i++)
             cv::line(Image,imagePoints[i],imagePoints[i+4],Scalar(0,0,255,255),1,CV_AA);
-
+        
     }
 
 
@@ -127,6 +131,7 @@ namespace aruco {
 
         vector<Point2f> imagePoints;
         projectPoints( objectPoints, B.Rvec,B.Tvec, CP.CameraMatrix, CP.Distorsion,   imagePoints);
+        
         //draw lines of different colours
         cv::line(Image,imagePoints[0],imagePoints[1],Scalar(0,0,255,255),2,CV_AA);
         cv::line(Image,imagePoints[0],imagePoints[2],Scalar(0,255,0,255),2,CV_AA);
@@ -135,6 +140,9 @@ namespace aruco {
         putText(Image,"X", imagePoints[1],FONT_HERSHEY_SIMPLEX, 1, Scalar(0,0,255,255),2);
         putText(Image,"Y", imagePoints[2],FONT_HERSHEY_SIMPLEX, 1, Scalar(0,255,0,255),2);
         putText(Image,"Z", imagePoints[3],FONT_HERSHEY_SIMPLEX, 1, Scalar(255,0,0,255),2);
+        
+        
+
     }
 
 
@@ -159,6 +167,7 @@ namespace aruco {
         objectPoints.at<float>(6,0)=txz+cubeSize;objectPoints.at<float>(6,1)=cubeSize;objectPoints.at<float>(6,2)=txz+cubeSize;
         objectPoints.at<float>(7,0)=txz;objectPoints.at<float>(7,1)=cubeSize;objectPoints.at<float>(7,2)=txz+cubeSize;
 
+        
         vector<Point2f> imagePoints;
         projectPoints( objectPoints,B.Rvec,B.Tvec, CP.CameraMatrix, CP.Distorsion,   imagePoints);
         //draw lines of different colours
@@ -170,6 +179,7 @@ namespace aruco {
 
         for(int i=0;i<4;i++)
             cv::line(Image,imagePoints[i],imagePoints[i+4],Scalar(0,0,255,255),1,CV_AA);
+        
     }
 
 }

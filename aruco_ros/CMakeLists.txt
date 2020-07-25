@@ -35,6 +35,9 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
+
+add_definitions(-std=c++11)
+
 add_library(aruco_ros_utils src/aruco_ros_utils.cpp)
 target_link_libraries(aruco_ros_utils ${catkin_LIBRARIES})
 
@@ -52,6 +55,12 @@ add_executable(marker_publisher src/marker_publish.cpp
                                 src/aruco_ros_utils.cpp)
 add_dependencies(marker_publisher ${PROJECT_NAME}_gencfg ${catkin_EXPORTED_TARGETS})
 target_link_libraries(marker_publisher ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
+
+
+add_executable(listener src/listener.cpp)  
+target_link_libraries(listener ${catkin_LIBRARIES})  
+add_dependencies(listener ${catkin_LIBRARIES} ${PROJECT_NAME}_gencfg) 
+
 
 #############
 ## Install ##

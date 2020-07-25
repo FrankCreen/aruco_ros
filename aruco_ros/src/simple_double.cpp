@@ -127,6 +127,7 @@ void image_callback(const sensor_msgs::ImageConstPtr& msg)
       //paint a circle in the center of the image
       cv::circle(inImage, cv::Point(inImage.cols/2, inImage.rows/2), 4, cv::Scalar(0,255,0), 1);
 
+
       if ( markers.size() == 2 )
       {
         float x[2], y[2], u[2], v[2];

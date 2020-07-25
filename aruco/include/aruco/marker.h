@@ -48,6 +48,12 @@ public:
     //matrices of rotation and translation respect to the camera
     cv::Mat Rvec,Tvec;
 
+  //位置信息
+//   double posX;
+//   double posY;
+//   double posZ;
+
+
     /**
      */
     Marker();
@@ -64,9 +70,26 @@ public:
      */
     bool isValid()const{return id!=-1 && size()==4;}
 
+/*
+      //设置位置信息
+  void setPosX(double a);
+  void setPosY(double b);
+  void setPosZ(double c);
+
+      //返回位置信息
+    double getPosX() const;
+    double getPosY() const;
+    double getPosZ() const;
+*/
+
+
     /**Draws this marker in the input image
      */
     void draw(cv::Mat &in, cv::Scalar color, int lineWidth=1,bool writeId=true)const;
+
+    /**Write this marker in the input image
+     */
+    void write(cv::Mat &in, cv::Scalar color, double lineWidth=1.0,bool writeId=true,int flag=0,double x=0.0,double y=0.0,double z=0.0)const;
 
     /**Calculates the extrinsics (Rvec and Tvec) of the marker with respect to the camera
      * @param markerSize size of the marker side expressed in meters
@@ -98,6 +121,9 @@ public:
      * ...
      */
     void OgreGetPoseParameters(  double position[3], double orientation[4] )throw(cv::Exception);    
+
+
+
     
   /**Returns the centroid of the marker
       */
@@ -136,6 +162,8 @@ public:
  
 private:
   void rotateXAxis(cv::Mat &rotation);
+
+
  
 };
 

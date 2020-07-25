@@ -129,7 +129,7 @@ private:
     Board _boardDetected;
     float _markerSize;
     CameraParameters _camParams;
-    MarkerDetector _mdetector;//internal markerdetector
+    MarkerDetector _mdetector;//internal 
     vector<Marker> _vmarkers;//markers detected in the call to : float  detect(const cv::Mat &im);
     
 };

@@ -29,6 +29,8 @@ or implied, of Rafael Muñoz Salinas.
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <cstdio>
+#include <string>
+#include <iostream>
 
 using namespace cv;
 namespace aruco {
@@ -140,6 +142,12 @@ namespace aruco {
     position[0] = Tvec.ptr<float>(0)[0];
     position[1] = Tvec.ptr<float>(0)[1];
     position[2] = +Tvec.ptr<float>(0)[2];
+
+    // //设置坐标信息
+    
+    // Marker::setPosX(position[0]);
+    // Marker::setPosY(position[1]);
+    // Marker::setPosZ(position[2]);
     
     // now calculare orientation quaternion
     cv::Mat Rot(3,3,CV_32FC1);
@@ -239,6 +247,58 @@ namespace aruco {
     }
   }
 
+  void Marker::write(Mat &in, Scalar color, double lineWidth ,bool writeId,int flag,double x,double y,double z)const
+  {
+    if (size()!=4) return;
+    cv::line( in,(*this)[0],(*this)[1],color,lineWidth,CV_AA);
+    cv::line( in,(*this)[1],(*this)[2],color,lineWidth,CV_AA);
+    cv::line( in,(*this)[2],(*this)[3],color,lineWidth,CV_AA);
+    cv::line( in,(*this)[3],(*this)[0],color,lineWidth,CV_AA);
+    cv::rectangle( in,(*this)[0]-Point2f(2,2),(*this)[0]+Point2f(2,2),Scalar(0,0,255,255),lineWidth,CV_AA);
+    cv::rectangle( in,(*this)[1]-Point2f(2,2),(*this)[1]+Point2f(2,2),Scalar(0,255,0,255),lineWidth,CV_AA);
+    cv::rectangle( in,(*this)[2]-Point2f(2,2),(*this)[2]+Point2f(2,2),Scalar(255,0,0,255),lineWidth,CV_AA);
+    if (writeId) {
+      //char cad[100];
+      //sprintf(cad,"----position:  %f, %f, %f  -----",x,y,z);
+      string text = "position: (";
+      text.append(std::to_string(x));
+      text.append(" , ");
+      text.append(std::to_string(y));
+      text.append(" , ");
+      text.append(std::to_string(z));
+      text.append(")");
+      //determine the centroid
+      Point cent(0,0);
+      for (int i=0;i<4;i++)
+      {
+        cent.x+=(*this)[i].x;
+        cent.y+=(*this)[i].y;
+      }
+      cent.x/=4.+10;
+      cent.y/=4.+5;
+
+      //专门处理历史数据的显示
+      if(flag==1){//显示前一个位置
+        cent.x = 12.0d;
+        cent.y = 22.0d;
+        string pre = "pos1 ";
+        text.replace(text.begin(),text.begin()+8,pre);
+        lineWidth = 0.5;
+        putText(in,text, cent,CV_FONT_HERSHEY_DUPLEX, lineWidth, Scalar(0,0,255,255),2);
+      }
+      else if(flag==2){//显示最近的位置
+        cent.x = 12.0d;
+        cent.y = 42.0d;
+        string pre = "pos2 ";
+        text.replace(text.begin(),text.begin()+8,pre);
+        lineWidth = 0.5;
+        putText(in,text, cent,CV_FONT_HERSHEY_DUPLEX, lineWidth, Scalar(0,255,0,255),2);
+      }
+      else
+        putText(in,text, cent,CV_FONT_HERSHEY_DUPLEX, lineWidth, Scalar(255,0,0,255),2);
+    }
+  }
+
   void Marker::calculateExtrinsics(float markerSize,const CameraParameters &CP,bool setYPerpendicular)throw(cv::Exception)
   {
     if (!CP.isValid()) throw cv::Exception(9004,"!CP.isValid(): invalid camera parameters. It is not possible to calculate extrinsics","calculateExtrinsics",__FILE__,__LINE__);
@@ -288,6 +348,36 @@ namespace aruco {
     if (setYPerpendicular) rotateXAxis(Rvec);
     ssize=markerSizeMeters;
   }
+
+/*
+
+  //设置位置信息
+    void setPosX(double a){
+        posX = a;
+    }
+
+    void setPosY(double b){
+        posY = b;
+    }
+
+    void setPosZ(double c){
+        posZ = c;
+    }
+
+
+  //返回位置信息
+  double getPosX(){
+    return posX;
+  }
+
+  double getPosY(){
+    return posY;
+  }
+
+  double getPosZ(){
+    return posZ;
+  }
+  */
 
   void Marker::rotateXAxis(Mat &rotation)
   {

@@ -187,6 +187,7 @@ public:
             marker_i.header.stamp = curr_stamp;
             marker_i.id = markers_.at(i).id;
             marker_i.confidence = 1.0;
+            
           }
 
           // if there is camera info let's do 3D stuff
@@ -229,6 +230,7 @@ public:
         }
 
         // Draw detected markers on the image for visualization
+        //对于检测到的marker进行可视化展示
         for(size_t i=0; i<markers_.size(); ++i)
         {
           markers_[i].draw(inImage_,cv::Scalar(0,0,255),2);

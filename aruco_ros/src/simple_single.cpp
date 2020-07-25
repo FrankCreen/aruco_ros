@@ -34,6 +34,7 @@ or implied, of Rafael Muñoz Salinas.
 */
 
 #include <iostream>
+
 #include <aruco/aruco.h>
 #include <aruco/cvdrawingutils.h>
 
@@ -48,7 +49,14 @@ or implied, of Rafael Muñoz Salinas.
 
 #include <dynamic_reconfigure/server.h>
 #include <aruco_ros/ArucoThresholdConfig.h>
+
+//处理历史数据
+#include <vector>
+#include <deque>
+using namespace std;
+
 using namespace aruco;
+
 
 class ArucoSimple
 {
@@ -84,12 +92,18 @@ private:
 
   dynamic_reconfigure::Server<aruco_ros::ArucoThresholdConfig> dyn_rec_server;
 
+    //历史节点
+  double px=0.0d,py=0.0d,pz=0.0d;
+  double cx=0.0d,cy=0.0d,cz=0.0d;
+  deque<vector<double>> his;
+
 public:
   ArucoSimple()
     : cam_info_received(false),
       nh("~"),
       it(nh)
   {
+
 
     std::string refinementMethod;
     nh.param<std::string>("corner_refinement", refinementMethod, "LINES");
@@ -115,6 +129,7 @@ public:
     
 
 
+
     image_sub = it.subscribe("/image", 1, &ArucoSimple::image_callback, this);
     cam_info_sub = nh.subscribe("/camera_info", 1, &ArucoSimple::cam_info_callback, this);
 
@@ -125,6 +140,8 @@ public:
     position_pub = nh.advertise<geometry_msgs::Vector3Stamped>("position", 100);
     marker_pub = nh.advertise<visualization_msgs::Marker>("marker", 10);
     pixel_pub = nh.advertise<geometry_msgs::PointStamped>("pixel", 10);
+
+
 
     nh.param<double>("marker_size", marker_size, 0.05);
     nh.param<int>("marker_id", marker_id, 300);
@@ -145,6 +162,18 @@ public:
              reference_frame.c_str(), marker_frame.c_str());
 
     dyn_rec_server.setCallback(boost::bind(&ArucoSimple::reconf_callback, this, _1, _2));
+
+    //处理历史数据
+    vector<double> v1,v2;
+    v1.push_back(px);
+    v1.push_back(py);
+    v1.push_back(pz);
+    v2.push_back(cx);
+    v2.push_back(cy);
+    v2.push_back(cz); 
+
+    his.push_back(v1);
+    his.push_back(v2);  
   }
 
   bool getTransform(const std::string& refFrame,
@@ -185,6 +214,7 @@ public:
 
   void image_callback(const sensor_msgs::ImageConstPtr& msg)
   {
+
     if ((image_pub.getNumSubscribers() == 0) &&
         (debug_pub.getNumSubscribers() == 0) &&
         (pose_pub.getNumSubscribers() == 0) &&
@@ -238,18 +268,60 @@ public:
             br.sendTransform(stampedTransform);
             geometry_msgs::PoseStamped poseMsg;
             tf::poseTFToMsg(transform, poseMsg.pose);
+            
             poseMsg.header.frame_id = reference_frame;
             poseMsg.header.stamp = curr_stamp;
             pose_pub.publish(poseMsg);
 
+            //cout<<poseMsg.pose.position.x<<"\n"<<endl;
+
+
+           
+
             geometry_msgs::TransformStamped transformMsg;
             tf::transformStampedTFToMsg(stampedTransform, transformMsg);
             transform_pub.publish(transformMsg);
+         
 
             geometry_msgs::Vector3Stamped positionMsg;
             positionMsg.header = transformMsg.header;
             positionMsg.vector = transformMsg.transform.translation;
             position_pub.publish(positionMsg);
+               
+           //显示检测道德marker中心坐标
+            //!!!!!!!!!!!!!!!!!
+            markers[i].write(inImage,cv::Scalar(0,0,0),0.6,true,0,poseMsg.pose.position.x,poseMsg.pose.position.y,poseMsg.pose.position.z);
+
+            //显示上一个点的坐标信息
+
+            //确定坐标发生的变化
+            cx = poseMsg.pose.position.x;
+            cy = poseMsg.pose.position.y;
+            cz = poseMsg.pose.position.z;
+
+            if( ((cx-px)*(cx-px)>1e-2)
+            ||((cy-py)*(cy-py)>1e-2)
+            ||((cz-pz)*(cz-pz)>1e-2) ){
+              px = cx;
+              py = cy;
+              pz = cz;
+
+              vector<double> pos;
+              pos.push_back(px);
+              pos.push_back(py);
+              pos.push_back(pz);
+
+              his.pop_front();
+              his.push_back(pos);
+              
+            }
+            //更新坐标信息
+            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,1,his[0][0],his[0][1],his[0][2]);
+            markers[i].write(inImage,cv::Scalar(0,0,0),0.5,true,2,his[1][0],his[1][1],his[1][2]);
+
+            //markers[i].write(inImage,cv::Scalar(0,0,0),0.4,true,px,py,pz);
+
+
 
             geometry_msgs::PointStamped pixelMsg;
             pixelMsg.header = transformMsg.header;
@@ -277,7 +349,10 @@ public:
 
           }
           // but drawing all the detected markers
-          markers[i].draw(inImage,cv::Scalar(0,0,255),2);
+          //显示所有检测到的markerID
+          markers[i].draw(inImage,cv::Scalar(0,0,0),2);
+
+
         }
 
         //draw a 3d cube in each marker if there is 3d info
@@ -352,6 +427,7 @@ int main(int argc,char **argv)
   ros::init(argc, argv, "aruco_simple");
 
   ArucoSimple node;
+
 
   ros::spin();
 }

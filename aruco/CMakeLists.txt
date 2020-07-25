@@ -16,6 +16,8 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
 )
 
+add_definitions(-std=c++11)
+
 add_library(aruco
   src/aruco/arucofidmarkers.cpp
   src/aruco/cvdrawingutils.cpp
